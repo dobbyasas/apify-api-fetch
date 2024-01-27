@@ -1,63 +1,59 @@
-/**
- * This is my solution to Web Automation Dev - Home assignment
- * 
- * im, using node-fetch@2 since newer version does not allow "require" in the import 
- * - typescript would solve this issue by using import instead of const, but i already started writing code in javascript so this was easier solution for me
- * im pointing it out so you know that i know :)
- * 
- * task was overall pretty simple it took me max one hour to make, but hardest part was the fact that i cant test it really since the API doesnt exist 
- * for testing i recreated the code and mocked the API (test.js)
- */
-
-const fetch = require(`node-fetch`);
-
-//fetching products from the API for a given price range
-async function fetchProducts(minPrice, maxPrice) {
-    const apiUrl = `https://api.ecommerce.com/products?minPrice=${minPrice}&maxPrice=${maxPrice}`;
-
-    try {
-        const response = await fetch(apiUrl);
-        return await response.json();
-    }
-    catch (error) {
-        console.error("Error when fetching data: ", error);
-        throw error;
-    }
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_fetch_1 = __importDefault(require("node-fetch"));
+function fetchProducts(minPrice, maxPrice) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const apiUrl = `https://api.ecommerce.com/products?minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        try {
+            const response = yield (0, node_fetch_1.default)(apiUrl);
+            return yield response.json();
+        }
+        catch (error) {
+            console.error("Error when fetching data: ", error);
+            throw error;
+        }
+    });
 }
-
-// fetch products in a specific segment
-async function fetchSegment(minPrice, maxPrice, products) {
-    const response = await fetchProducts(minPrice, maxPrice);
-
-    if (response.count < 1000) {
-        // If less than 1000 products are returned, add them to the products array
-        products.push(...response.products);
-    }
-    else {
-        // if 1000 products are returned, the range is divided to fetch more products
-        const midPrice = Math.floor((minPrice + maxPrice) / 2);
-        await fetchSegment(minPrice, midPrice, products);
-        await fetchSegment(midPrice + 1, maxPrice, products);
-    }
+function fetchSegment(minPrice, maxPrice, products) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield fetchProducts(minPrice, maxPrice);
+        if (response.count < 1000) {
+            products.push(...response.products);
+        }
+        else {
+            const midPrice = Math.floor((minPrice + maxPrice) / 2);
+            yield fetchSegment(minPrice, midPrice, products);
+            yield fetchSegment(midPrice + 1, maxPrice, products);
+        }
+    });
 }
-
-// start fetching (main function)
-async function getAllProducts() {
-    let products = [];
-
-    try {
-        await fetchSegment(0, 100000, products);
-        return products;
-    }
-    catch (error) {
-        console.error("Error when fetching products: ", error);
-        return [];
-    }
+function getAllProducts() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let products = [];
+        try {
+            yield fetchSegment(0, 100000, products);
+            return products;
+        }
+        catch (error) {
+            console.error("Error when fetching products: ", error);
+            return [];
+        }
+    });
 }
-
-// calling the main function and logging results
 getAllProducts().then(products => {
-    console.log(`Total products fetched: ${products.length}`);
+    console.log('Total products fetched: §{products.lenght}');
 }).catch(error => {
-    console.error("Failed fethcing products: ", error)
+    console.error("Failed fetching products: ", error);
 });
